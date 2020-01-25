@@ -1,23 +1,16 @@
 <template>
     <div class="signup">
- <v-container
-        class="fill-height"
-        fluid
-      >
-        <v-row
-          align="center"
-          justify="center"
-        >
+      <v-container>
+        <v-row justify="end">
           <v-col
             cols="12"
             sm="8"
             md="4"
           >
-            <v-form @submit.prevent="signup" >
+            <v-form @submit.prevent="signup" color="#fff">
             <v-card class="elevation-12">
               <v-toolbar
-                color="primary"
-                dark
+                color="#EA2027"
                 flat
               >
                 <v-toolbar-title>Sign Up </v-toolbar-title>
@@ -25,7 +18,6 @@
               </v-toolbar>
               
               <v-card-text>
-               
                   <v-text-field
                     v-model="email"
                     label="Enter Email"
@@ -33,7 +25,6 @@
                     type="text"
                     id="email"
                   />
-
                   <v-text-field
                   v-model="password"
                     id="password"
@@ -49,13 +40,12 @@
                     type="text"
                     :rules="[feedback]"
     
-                  />
-                
+                  />  
                 </v-card-text>
                 <!-- <v-alert type="info" v-if="feedback">{{ feedback }}</v-alert> -->
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" type="submit">Sign Up</v-btn>
+                    <v-btn color="#EA2027" type="submit">Sign Up</v-btn>
                 </v-card-actions>
             </v-card>
             </v-form>
@@ -68,21 +58,24 @@
 <script>
 import slugify from 'slugify'
 import db from '@/firebase/init'
+import firebase from 'firebase'
+
 
 export default {
     name: 'Signup',
+
     data() {
         return {
             email: null,
             password: null,
             alias: null,
             slug: null,
-            feedback: true
+            feedback: true,
         }
     },
     methods: {
         signup() {
-            if(this.alias) {
+            if(this.alias && this.email && this.password) {
                 this.slug = slugify(this.alias, {
                 replacement: '-',
                 remove: /[$*_+~.()'"!\-:@]/g,
@@ -93,11 +86,23 @@ export default {
                     if(doc.exists) {
                         this.feedback = 'This alias already exists'
                     }else {
+                        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+                          .then(cred => {
+                            ref.set({
+                              alias: this.alias,
+                              user_id: cred.user.uid
+                            })
+                          }).then(() => {
+                            this.$router.push({ name: 'Dashboard' })
+                          })
+                          .catch(err => {
+                            this.feedback = err.message
+                          });
                         this.feedback = 'This alias is free to use'
                     }
                 })
             }else {
-                this.feedback = 'You must enter an alias'
+                this.feedback = 'You must enter all fields'
             }
         }
     }
