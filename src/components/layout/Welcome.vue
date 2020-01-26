@@ -4,7 +4,7 @@
             height="100vh"
             hide-delimiter-background
             show-arrows-on-hover
-            
+            cycle 
             interval="5000">
             <v-carousel-item
                 v-for="(img,i) in imgs"
@@ -12,15 +12,14 @@
                 :src="img.src"
             >
             <Navbar />
-            <!-- <Signup /> -->
             </v-carousel-item>  
         </v-carousel>
-</div>
+    </div>
 </template>
 
 <script>
 import Navbar from '../layout/Navbar';
-// import Signup from '../auth/Signup';
+
 export default {
     name: 'Welcome',
     components: {
